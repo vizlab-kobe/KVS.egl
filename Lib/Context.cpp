@@ -71,6 +71,14 @@ bool Context::create( EGLint width, EGLint height )
         return false;
     }
 
+    // Bind the API
+    KVS_EGL_CALL( status = eglBindAPI( EGL_OPENGL_API ) );
+    if ( status == EGL_FALSE )
+    {
+        kvsMessageError( "API binding failed" );
+	return false;
+    }
+
     // Create a context and make it current
     m_handle = eglCreateContext( m_display, config, EGL_NO_CONTEXT, NULL );
 

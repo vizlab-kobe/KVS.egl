@@ -6,6 +6,7 @@
 #include <kvs/StructuredVolumeImporter>
 #include <kvs/HydrogenVolumeData>
 #include <kvs/RayCastingRenderer>
+#include <kvs/Timer>
 
 
 int main( int argc, char** argv )
@@ -23,6 +24,7 @@ int main( int argc, char** argv )
     screen.registerObject( object, renderer );
 
     screen.displayInfo();
+    kvs::Timer timer( kvs::Timer::Start );
     for ( size_t i = 0; i < 4; i++ )
     {
         std::stringstream num; num << std::setw(3) << std::setfill('0') << i;
@@ -34,6 +36,10 @@ int main( int argc, char** argv )
         screen.capture().write( filename );
         std::cout << filename << std::endl;
     }
+    timer.stop();
+
+    std::cout << "Total rendering time:   " << timer.sec() << " sec." << std::endl;
+    std::cout << "Average rendering time: " << timer.sec() / 4.0f << " sec." << std::endl;
 
     return 0;
 }
