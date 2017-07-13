@@ -33,14 +33,15 @@ kvs::ColorImage ScreenBase::capture() const
 void ScreenBase::displayInfo()
 {
   /*
+    EGLDisplay display = eglGetDisplay( EGL_DEFAULT_DISPLAY );
     std::cout << "EGL_CLIENT_APIS : ";
-    std::cout << eglQueryString( m_display, EGL_CLIENT_APIS ) << std::endl;
+    std::cout << eglQueryString( display, EGL_CLIENT_APIS ) << std::endl;
     std::cout << "EGL_VENDOR : ";
-    std::cout << eglQueryString( m_display, EGL_VENDOR ) << std::endl;
+    std::cout << eglQueryString( display, EGL_VENDOR ) << std::endl;
     std::cout << "EGL_VERSION : ";
-    std::cout << eglQueryString( m_display, EGL_VERSION ) << std::endl;
+    std::cout << eglQueryString( display, EGL_VERSION ) << std::endl;
     std::cout << "EGL_EXTENSIONS : ";
-    std::cout << eglQueryString( m_display, EGL_EXTENSIONS ) << std::endl;
+    std::cout << eglQueryString( display, EGL_EXTENSIONS ) << std::endl;
   */
 }
 
@@ -48,6 +49,7 @@ void ScreenBase::draw()
 {
     if ( !m_context.isValid() ) { this->create(); }
     this->paintEvent();
+    m_context.swapBuffers();
 }
 
 void ScreenBase::create()

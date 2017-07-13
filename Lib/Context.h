@@ -10,9 +10,10 @@ namespace egl
 class Context
 {
 private:
-    EGLContext m_handle; // EGL rendering context
-    EGLDisplay m_display; // EGL display
-    EGLSurface m_surface; // EGL surface
+    EGLContext m_handle; ///< EGL rendering context
+    EGLDisplay m_display; ///< EGL display
+    EGLSurface m_surface; ///< EGL drawing surface
+    EGLConfig m_config; ///< EGL configulation
 
 public:
     Context();
@@ -25,6 +26,9 @@ public:
     void destroy();
     bool makeCurrent();
     void releaseCurrent();
+
+    bool swapBuffers();
+    bool swapInterval( EGLint interval );
 };
 
 } // end of namespace egl
