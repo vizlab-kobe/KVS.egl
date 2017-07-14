@@ -77,7 +77,7 @@ bool Context::create( EGLint width, EGLint height )
     if ( status == EGL_FALSE )
     {
         kvsMessageError( "API binding failed" );
-	return false;
+        return false;
     }
 
     // Create a context and make it current
