@@ -21,7 +21,7 @@ public:
     ~Surface();
 
     void* handle() { return m_handle; }
-    bool create( const kvs::egl::Config& config, const EGLint* attribs );
+    bool create( kvs::egl::Config& config, const EGLint* attribs );
     void destroy();
 };
 

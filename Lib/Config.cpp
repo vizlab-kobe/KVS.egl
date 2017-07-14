@@ -23,11 +23,11 @@ bool Config::create( const EGLint* attribs )
     EGLConfig configs[ config_size ];
     EGLint nconfigs = 0;
     EGLBoolean status = EGL_FALSE;
-    KVS_EGL_CALL( status = eglGetConfigs( m_display, configs, config_size, &nconfigs ) );
+    KVS_EGL_CALL( status = eglGetConfigs( m_display.handle(), configs, config_size, &nconfigs ) );
     if ( status == EGL_FALSE ) { return false; }
     if ( nconfigs == 0 ) { return false; }
 
-    KVS_EGL_CALL( status = eglChooseConfig( m_display, attribs, &m_config, 1, &nconfigs ) );
+    KVS_EGL_CALL( status = eglChooseConfig( m_display.handle(), attribs, &m_handle, 1, &nconfigs ) );
     if ( status == EGL_FALSE ) { return false; }
 
     return true;
