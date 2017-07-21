@@ -1,6 +1,7 @@
 #include "ScreenBase.h"
 #include <kvs/ColorImage>
 #include <kvs/OpenGL>
+#include <kvs/Message>
 #include <iostream>
 #include <string>
 
@@ -11,12 +12,19 @@ namespace kvs
 namespace egl
 {
 
-ScreenBase::ScreenBase()
+ScreenBase::ScreenBase():
+    m_context( m_display )
 {
+    if ( !m_display.create( EGL_DEFAULT_DISPLAY ) )
+    {
+        kvsMessageError( "Cannot create EGL display connection." );
+        return;
+    }
 }
 
 ScreenBase::~ScreenBase()
 {
+    m_display.terminate();
 }
 
 kvs::ColorImage ScreenBase::capture() const
@@ -54,6 +62,13 @@ void ScreenBase::draw()
 
 void ScreenBase::create()
 {
+    // Initialize EGL display
+    if ( !m_display.initialize() )
+    {
+        kvsMessageError( "Cannot initialize EGL display." );
+        return;
+    }
+
     // Create EGL context
     const size_t width = BaseClass::width();
     const size_t height = BaseClass::height();

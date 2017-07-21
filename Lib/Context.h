@@ -1,5 +1,8 @@
 #pragma once
 #include "EGL.h"
+#include "Config.h"
+#include "Surface.h"
+#include "Display.h"
 
 
 namespace kvs
@@ -12,12 +15,12 @@ class Context
 {
 private:
     EGLContext m_handle; ///< EGL rendering context
-    EGLDisplay m_display; ///< EGL display
-    EGLSurface m_surface; ///< EGL drawing surface
-    EGLConfig m_config; ///< EGL configulation
+    kvs::egl::Config m_config; ///< EGL configulation
+    kvs::egl::Surface m_surface; ///< EGL drawing surface
+    kvs::egl::Display& m_display; ///< EGL display
 
 public:
-    Context();
+    Context( kvs::egl::Display& display );
     ~Context();
 
     void* handle() { return m_handle; }

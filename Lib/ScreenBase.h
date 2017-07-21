@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EGL.h"
+#include "Display.h"
 #include "Context.h"
 #include <kvs/ScreenBase>
 #include <kvs/ValueArray>
@@ -18,8 +19,9 @@ class ScreenBase : public kvs::ScreenBase
     typedef kvs::ScreenBase BaseClass;
 
 private:
+    kvs::egl::Display m_display; ///< EGL display
     kvs::egl::Context m_context; ///< EGL rendering context
- 
+
 public:
     ScreenBase();
     virtual ~ScreenBase();

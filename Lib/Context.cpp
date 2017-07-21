@@ -8,11 +8,11 @@ namespace kvs
 namespace egl
 {
 
-Context::Context():
+Context::Context( kvs::egl::Display& display ):
     m_handle( NULL ),
-    m_display( NULL ),
-    m_surface( NULL ),
-    m_config( NULL )
+    m_config( display ),
+    m_surface( display ),
+    m_display( display )
 {
 }
 
@@ -23,25 +23,7 @@ Context::~Context()
 
 bool Context::create( EGLint width, EGLint height )
 {
-    // Create EGL display connection.
-    KVS_EGL_CALL( m_display = eglGetDisplay( EGL_DEFAULT_DISPLAY ) );
-    if ( m_display == EGL_NO_DISPLAY )
-    {
-        kvsMessageError( "Cannot create EGL display connection." );
-        return false;
-    }
-
-    // Initialize EGL display connection.
-    EGLBoolean status = EGL_FALSE;
-    KVS_EGL_CALL( status = eglInitialize( m_display, NULL, NULL ) );
-    if ( status == EGL_FALSE )
-    {
-        kvsMessageError( "Failed to initialize EGL." );
-        return false;
-    }
-
     // Create an appropriate EGL frame buffer configuration.
-    EGLint nconfigs;
     const EGLint config_attribs[] = {
         EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
         EGL_BLUE_SIZE,  8,
@@ -52,8 +34,8 @@ bool Context::create( EGLint width, EGLint height )
         EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
         EGL_NONE
     };
-    KVS_EGL_CALL( status = eglChooseConfig( m_display, config_attribs, &m_config, 1, &nconfigs ) );
-    if ( status == EGL_FALSE )
+
+    if ( !m_config.create( config_attribs ) )
     {
         kvsMessageError( "Failed to choose configuration." );
         return false;
@@ -65,14 +47,15 @@ bool Context::create( EGLint width, EGLint height )
         EGL_HEIGHT, height,
         EGL_NONE,
     };
-    KVS_EGL_CALL( m_surface = eglCreatePbufferSurface( m_display, m_config, surface_attribs ) );
-    if ( m_surface == EGL_NO_SURFACE )
+
+    if ( !m_surface.create( m_config, surface_attribs ) )
     {
         kvsMessageError( "Cannot create drawing surface." );
         return false;
     }
 
     // Bind the API
+    EGLBoolean status = EGL_FALSE;
     KVS_EGL_CALL( status = eglBindAPI( EGL_OPENGL_API ) );
     if ( status == EGL_FALSE )
     {
@@ -81,38 +64,28 @@ bool Context::create( EGLint width, EGLint height )
     }
 
     // Create a context and make it current
-    KVS_EGL_CALL( m_handle = eglCreateContext( m_display, m_config, EGL_NO_CONTEXT, NULL ) );
+    KVS_EGL_CALL( m_handle = eglCreateContext( m_display.handle(), m_config.handle(), EGL_NO_CONTEXT, NULL ) );
 
     return this->isValid();
 }
 
 void Context::destroy()
 {
-    if ( m_display )
+    this->releaseCurrent();
+
+    if ( m_handle )
     {
-        this->releaseCurrent();
-
-        if ( m_handle )
-        {
-            KVS_EGL_CALL( eglDestroyContext( m_display, m_handle ) );
-            m_handle = NULL;
-        }
-
-        if ( m_surface )
-        {
-            KVS_EGL_CALL( eglDestroySurface( m_display, m_surface ) );
-            m_surface = NULL;
-        }
-
-        KVS_EGL_CALL( eglTerminate( m_display ) );
-        m_display = NULL;
+        KVS_EGL_CALL( eglDestroyContext( m_display.handle(), m_handle ) );
+        m_handle = NULL;
     }
+
+    m_surface.destroy();
 }
 
 bool Context::makeCurrent()
 {
     EGLBoolean status = EGL_FALSE;
-    KVS_EGL_CALL( status = eglMakeCurrent( m_display, m_surface, m_surface, m_handle ) );
+    KVS_EGL_CALL( status = eglMakeCurrent( m_display.handle(), m_surface.handle(), m_surface.handle(), m_handle ) );
     if ( status == EGL_FALSE )
     {
         kvsMessageError( "Cannot bind drawing surface." );
@@ -124,20 +97,20 @@ bool Context::makeCurrent()
 
 void Context::releaseCurrent()
 {
-    KVS_EGL_CALL( eglMakeCurrent( m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT ) );
+    KVS_EGL_CALL( eglMakeCurrent( m_display.handle(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT ) );
 }
 
 bool Context::swapBuffers()
 {
     EGLBoolean status = EGL_FALSE;
-    KVS_EGL_CALL( status = eglSwapBuffers( m_display, m_surface ) );
+    KVS_EGL_CALL( status = eglSwapBuffers( m_display.handle(), m_surface.handle() ) );
     return status == EGL_TRUE;
 }
 
 bool Context::swapInterval( EGLint interval )
 {
     EGLBoolean status = EGL_FALSE;
-    KVS_EGL_CALL( eglSwapInterval( m_display, interval ) );
+    KVS_EGL_CALL( eglSwapInterval( m_display.handle(), interval ) );
     return status == EGL_TRUE;
 }
 

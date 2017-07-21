@@ -10,7 +10,7 @@ namespace egl
 Display::Display():
     m_handle( EGL_NO_DISPLAY ),
     m_major_version( 0 ),
-    m_minor_version( 1 )
+    m_minor_version( 0 )
 {
 }
 
