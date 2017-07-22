@@ -14,6 +14,8 @@ namespace egl
 
 ScreenBase::ScreenBase():
     m_context( m_display )
+    m_config( display ),
+    m_surface( display )
 {
     if ( !m_display.create( EGL_DEFAULT_DISPLAY ) )
     {
@@ -69,10 +71,42 @@ void ScreenBase::create()
         return;
     }
 
-    // Create EGL context
+    // Create an appropriate EGL frame buffer configuration.
+    const EGLint config_attribs[] = {
+        EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+        EGL_BLUE_SIZE,  8,
+        EGL_GREEN_SIZE, 8,
+        EGL_RED_SIZE,   8,
+        EGL_ALPHA_SIZE, 8,
+        EGL_DEPTH_SIZE, 8,
+        EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+        EGL_NONE
+    };
+
+    if ( !m_config.create( config_attribs ) )
+    {
+        kvsMessageError( "Cannot choose configuration." );
+        return;
+    }
+
+    // Create a drawing surface.
     const size_t width = BaseClass::width();
     const size_t height = BaseClass::height();
-    m_context.create( width, height );
+    const EGLint surface_attribs[] = {
+        EGL_WIDTH,  width,
+        EGL_HEIGHT, height,
+        EGL_NONE,
+    };
+
+    if ( !m_surface.create( m_config, surface_attribs ) )
+    {
+        kvsMessageError( "Cannot create drawing surface." );
+        return;
+    }
+
+    // Create EGL context
+//    m_context.create( width, height );
+    m_context.create( m_config );
     if ( !m_context.isValid() )
     {
         kvsMessageError( "Cannot create EGL context." );
@@ -80,7 +114,8 @@ void ScreenBase::create()
     }
 
     // Bind the context to the buffer
-    if ( !m_context.makeCurrent() )
+//    if ( !m_context.makeCurrent() )
+    if ( !m_context.makeCurrent( m_surface ) )
     {
         kvsMessageError( "Cannot bind buffer." );
         return;

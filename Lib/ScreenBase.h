@@ -21,6 +21,8 @@ class ScreenBase : public kvs::ScreenBase
 private:
     kvs::egl::Display m_display; ///< EGL display
     kvs::egl::Context m_context; ///< EGL rendering context
+    kvs::egl::Config m_config; ///< EGL configulation
+    kvs::egl::Surface m_surface; ///< EGL drawing surface
 
 public:
     ScreenBase();
