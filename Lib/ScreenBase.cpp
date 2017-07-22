@@ -13,9 +13,9 @@ namespace egl
 {
 
 ScreenBase::ScreenBase():
-    m_context( m_display )
-    m_config( display ),
-    m_surface( display )
+    m_context( m_display ),
+    m_config( m_display ),
+    m_surface( m_display )
 {
     if ( !m_display.create( EGL_DEFAULT_DISPLAY ) )
     {
@@ -27,6 +27,8 @@ ScreenBase::ScreenBase():
 ScreenBase::~ScreenBase()
 {
     m_display.terminate();
+    m_context.destroy();
+    m_surface.destroy();
 }
 
 kvs::ColorImage ScreenBase::capture() const
@@ -59,7 +61,7 @@ void ScreenBase::draw()
 {
     if ( !m_context.isValid() ) { this->create(); }
     this->paintEvent();
-    m_context.swapBuffers();
+    m_context.swapBuffers( m_surface );
 }
 
 void ScreenBase::create()
@@ -90,11 +92,9 @@ void ScreenBase::create()
     }
 
     // Create a drawing surface.
-    const size_t width = BaseClass::width();
-    const size_t height = BaseClass::height();
     const EGLint surface_attribs[] = {
-        EGL_WIDTH,  width,
-        EGL_HEIGHT, height,
+        EGL_WIDTH,  BaseClass::width(),
+        EGL_HEIGHT, BaseClass::height(),
         EGL_NONE,
     };
 
@@ -105,7 +105,6 @@ void ScreenBase::create()
     }
 
     // Create EGL context
-//    m_context.create( width, height );
     m_context.create( m_config );
     if ( !m_context.isValid() )
     {
@@ -114,7 +113,6 @@ void ScreenBase::create()
     }
 
     // Bind the context to the buffer
-//    if ( !m_context.makeCurrent() )
     if ( !m_context.makeCurrent( m_surface ) )
     {
         kvsMessageError( "Cannot bind buffer." );

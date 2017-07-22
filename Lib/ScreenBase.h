@@ -3,6 +3,8 @@
 #include "EGL.h"
 #include "Display.h"
 #include "Context.h"
+#include "Config.h"
+#include "Surface.h"
 #include <kvs/ScreenBase>
 #include <kvs/ValueArray>
 #include <kvs/ColorImage>
