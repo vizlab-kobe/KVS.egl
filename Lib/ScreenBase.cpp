@@ -42,6 +42,28 @@ kvs::ColorImage ScreenBase::capture() const
     return kvs::ColorImage( width, height, buffer );
 }
 
+kvs::ValueArray<kvs::UInt8> ScreenBase::readbackColorBuffer() const
+{
+    kvs::OpenGL::SetReadBuffer( GL_FRONT );
+    kvs::OpenGL::SetPixelStorageMode( GL_PACK_ALIGNMENT, GLint(1) );
+
+    kvs::ValueArray<kvs::UInt8> buffer( this->width() * this->height() * 4 );
+    kvs::OpenGL::ReadPixels( 0, 0, this->width(), this->height(), GL_RGBA, GL_UNSIGNED_BYTE, buffer.data() );
+
+    return buffer;
+}
+
+kvs::ValueArray<kvs::Real32> ScreenBase::readbackDepthBuffer() const
+{
+    kvs::OpenGL::SetReadBuffer( GL_FRONT );
+    kvs::OpenGL::SetPixelStorageMode( GL_PACK_ALIGNMENT, GLint(1) );
+
+    kvs::ValueArray<kvs::Real32> buffer( this->width() * this->height() );
+    kvs::OpenGL::ReadPixels( 0, 0, this->width(), this->height(), GL_DEPTH_COMPONENT, GL_FLOAT, buffer.data() );
+
+    return buffer;
+}
+
 void ScreenBase::displayInfo()
 {
   /*

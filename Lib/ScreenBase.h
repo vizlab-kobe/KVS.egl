@@ -31,6 +31,8 @@ public:
     virtual ~ScreenBase();
 
     kvs::ColorImage capture() const;
+    kvs::ValueArray<kvs::UInt8> readbackColorBuffer() const;
+    kvs::ValueArray<kvs::Real32> readbackDepthBuffer() const;
     void displayInfo();
     void draw();
 
